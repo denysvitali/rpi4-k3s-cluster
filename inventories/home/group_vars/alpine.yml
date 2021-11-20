@@ -1,0 +1,5 @@
+alpine_user: dvitali
+ssh_authorized_keys:
+  - sk-ecdsa-sha2-nistp256@openssh.com AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBBBzSUH3FPZx91q363nZTmB2wCys3xuooH25Gn4mvQWrZd02r8wgOrHvmRXHk3sJ5+CLxWUa7j4IKxnb9Sn1XToAAAAEc3NoOg== dvitali@denvit-ws1
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKQhkWef8kfmO/nhJ8vbMP2FRXTR1fcj0yBeloP3tfrB dvitali@denvit-ws1
+

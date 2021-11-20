@@ -11,16 +11,13 @@ set +e
 abort_if_mounted "$BOOT_DEVICE"
 abort_if_mounted "$ROOTFS_DEVICE"
 
-# mmcblk0p1 is boot, mmcblk0p2 is the rootfs
 BOOT_DEVICE_DIR=$(basename "$BOOT_DEVICE")
 ROOTFS_DEVICE_DIR=$(basename "$ROOTFS_DEVICE")
 
 set -e
 set -x
 mkdir "/mnt/$BOOT_DEVICE_DIR"
-mkfs.vfat "$BOOT_DEVICE"
-mount "$BOOT_DEVICE" "/mnt/$BOOT_DEVICE_DIR"
-
 mkdir "/mnt/$ROOTFS_DEVICE_DIR"
+mkfs.fat -F32 "$BOOT_DEVICE"
 mkfs.ext4 "$ROOTFS_DEVICE"
-mount "$ROOTFS_DEVICE" "/mnt/$ROOTFS_DEVICE_DIR"
+mount "$BOOT_DEVICE" "/mnt/$BOOT_DEVICE_DIR"

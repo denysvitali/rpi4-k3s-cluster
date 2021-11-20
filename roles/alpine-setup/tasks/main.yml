@@ -1,0 +1,47 @@
+- name: Create user {{ alpine_user }}
+  ansible.builtin.user:
+    append: yes
+    groups:
+      - wheel
+    name: "{{ alpine_user }}"
+    password: "{{ lookup('env','ANSIBLE_SUDO_PASSWORD') | password_hash('sha512') }}"
+
+- name: Setup SSH Keys
+  ansible.posix.authorized_key:
+    user: "{{ alpine_user }}"
+    state: present
+    key: "{{ item }}"
+  with_items: "{{ ssh_authorized_keys }}"
+
+- name: Configure apk
+  ansible.builtin.lineinfile:
+    path: /etc/apk/repositories
+    state: present
+    line: http://uk.alpinelinux.org/alpine/v3.14/community
+
+- name: Install packages
+  community.general.apk:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - vim
+    - sudo
+    - htop
+
+- name: Configure sudo
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    line: "%wheel ALL=(ALL) ALL"
+    regexp: "^# %wheel ALL=\\(ALL\\) ALL"
+
+
+- name: Setup Chronyd
+  ansible.builtin.template:
+    src: ./templates/chrony/chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+
+- name: Restart chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted

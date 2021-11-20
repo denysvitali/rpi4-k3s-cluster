@@ -1,0 +1,5 @@
+# This should run as root
+- name: Initial setup
+  hosts: alpine
+  roles:
+    - alpine-setup

@@ -3,9 +3,12 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source "$SCRIPT_DIR/../utils.sh"
 
 TARBALL_FILE=${TARBALL_FILE:-}
-TARBALL_DOWNLOADED_NAME=ArchLinuxARM-rpi-aarch64-latest.tar.gz
-TARBALL_URL="http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz"
+TARBALL_DOWNLOADED_NAME=alpine-rpi-3.14.3-aarch64.tar.gz
+TARBALL_URL="https://dl-cdn.alpinelinux.org/alpine/v3.14/releases/aarch64/alpine-rpi-3.14.3-aarch64.tar.gz"
 TMP_DIR=$(mktemp -d)
+
+HEADLESS_APKOVL_FILE=${HEADLESS_APKOVL_FILE:-alpine/headless.apkovl.tar.gz}
+HEADLESS_APKOVL_NAME="headless.apkovl.tar.gz"
 
 set -x
 
@@ -22,18 +25,20 @@ if [ -z "$TARBALL_FILE" ]; then
   TARBALL_FILE="$TMP_DIR/$TARBALL_DOWNLOADED_NAME"
 fi
 
-mkdir "$TMP_DIR/extracted/"
-bsdtar -xpf "$TARBALL_FILE" -C "$TMP_DIR/extracted/"
+if [ -z "$HEADLESS_APKOVL_FILE" ]; then
+  wget "$HEADLESS_APKOVL_URL" -O "$TMP_DIR/$HEADLESS_APKOVL_NAME"
+  HEADLESS_APKOVL_FILE="$TMP_DIR/$HEADLESS_APKOVL_NAME"
+fi
 
-ls "$TMP_DIR/extracted"
-mv "$TMP_DIR/extracted/"* "/mnt/$ROOTFS_DEVICE_DIR/"
-mv "/mnt/$ROOTFS_DEVICE_DIR/boot/"* "/mnt/$BOOT_DEVICE_DIR/"
+mkdir "$TMP_DIR/extracted/"
+tar \
+  --no-same-owner \
+  -xvzf "$TARBALL_FILE" \
+  -C "/mnt/$BOOT_DEVICE_DIR"
+cp "$HEADLESS_APKOVL_FILE" "/mnt/$BOOT_DEVICE_DIR/$HEADLESS_APKOVL_NAME"
 sync
 
-sed -i 's/mmcblk0/mmcblk1/g' "/mnt/$ROOTFS_DEVICE_DIR/etc/fstab"
-
-umount "/mnt/$ROOTFS_DEVICE_DIR"
-umount "/mnt/$BOOT_DEVICE_DIR"
-
-rmdir "/mnt/$ROOTFS_DEVICE_DIR"
+umount "/mnt/$BOOT_DEVICE_DIR" || true
+umount "/mnt/$ROOTFS_DEVICE_DIR" || true
 rmdir "/mnt/$BOOT_DEVICE_DIR"
+rmdir "/mnt/$ROOTFS_DEVICE_DIR"
