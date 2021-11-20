@@ -1,0 +1,28 @@
+- name: Install packages
+  community.general.pacman:
+    name:
+      - prometheus-node-exporter
+      - htop
+      - vim
+      - tcpdump
+      - fail2ban
+      - inetutils
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+
+- name: Enable Node Exporter
+  ansible.builtin.systemd:
+    name: prometheus-node-exporter
+    daemon_reload: yes
+    state: started
+
+- name: Open port 9100/TCP
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    source: 192.168.1.0/24
+    destination_port: 9100
+    jump: ACCEPT
+    comment: Accept connections to Prometheus Node Exporter

@@ -1,0 +1,2 @@
+MMC_DEV=/dev/sdc
+TARBALL_FILE=/home/dvitali/Downloads/ArchLinuxARM-rpi-aarch64-latest.tar.gz
